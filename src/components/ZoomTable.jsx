@@ -182,7 +182,7 @@ const ZoomTable = ({ designType = 1 }) => {
   }
   
   // 편집 모드일 때 배경색을 변경하여 시각적으로 구분
-  const containerClassName = `zoom-table-container ${designType === 2 && mode === 'edit' ? 'edit-mode' : ''}`;
+  const containerClassName = `zoom-table-container ${mode === 'edit' ? 'edit-mode' : ''}`;
   
   const scrollContainerStyle = {
     width: '100%',
@@ -195,7 +195,7 @@ const ZoomTable = ({ designType = 1 }) => {
     width: `${100 / 10}%`,
     minWidth: '150px',
     padding: '8px',
-    backgroundColor: designType === 2 && mode === 'edit' ? '#fff3e0' : '#f5f5f5',
+    backgroundColor: mode === 'edit' ? '#fff3e0' : '#f5f5f5',
     fontWeight: 'bold',
     boxSizing: 'border-box',
     height: '50px', // 헤더 높이 고정
@@ -204,7 +204,7 @@ const ZoomTable = ({ designType = 1 }) => {
   const cellStyle = {
     width: `${100 / 10}%`,
     minWidth: '150px',
-    height: cellHeight,
+    height: cellHeight, // 고정된 높이 사용
     verticalAlign: 'middle',
     fontSize: '18px',
     padding: '20px 10px', // 패딩 증가
@@ -212,6 +212,7 @@ const ZoomTable = ({ designType = 1 }) => {
     textAlign: 'center',
     wordBreak: 'break-word',
     boxSizing: 'border-box',
+    backgroundColor: mode === 'view' ? '#e6ffe6' : undefined, // done 모드일 때만 연한 초록색 배경
   }
   
   return (
@@ -228,7 +229,7 @@ const ZoomTable = ({ designType = 1 }) => {
               <tr>
                 {columns.map((col, idx) => (
                   <th key={idx} style={headerStyle}>
-                    {designType === 2 && mode === 'edit' 
+                    {mode === 'edit'
                       ? <div className="editable-cell">{col}</div> 
                       : col
                     }
@@ -240,14 +241,16 @@ const ZoomTable = ({ designType = 1 }) => {
               <tr>
                 {columns.map((_, idx) => (
                   <td key={idx} style={cellStyle}>
-                    {designType === 2 && mode === 'edit' 
+                    {mode === 'edit'
                       ? (
                         <div className="editable-cell">
                           <span className="edit-placeholder">editable</span>
                           <div>셀 {idx + 1}</div>
                         </div>
                       ) 
-                      : `셀 ${idx + 1}`
+                      : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          결과 셀 {idx + 1}
+                        </div>
                     }
                   </td>
                 ))}
@@ -257,7 +260,7 @@ const ZoomTable = ({ designType = 1 }) => {
         </div>
         
         {/* 편집 모드 오버레이 */}
-        {designType === 2 && mode === 'edit' && (
+        {mode === 'edit' && (
           <div className="edit-mode-overlay">
             <div className="edit-mode-badge">
               <span className="edit-icon">✏️</span> EDIT
@@ -267,6 +270,26 @@ const ZoomTable = ({ designType = 1 }) => {
       </div>
       
       <div className="controls-container">
+        {/* 시안 1 & 2: 모드 토글 */}
+        <div className={`mode-toggle-container ${designType === 1 ? 'design1' : 'design2'}`}>
+          <button 
+            className={`mode-toggle ${mode === 'edit' ? 'active' : ''}`} 
+            onClick={handleModeChange}
+          >
+            {mode === 'edit' ? 'DONE' : 'EDIT'}
+          </button>
+          <div className="mode-description">
+            {mode === 'edit' 
+              ? designType === 1
+                ? '현재 Edit Mode (DONE 버튼 클릭시 완료 모드로 전환)' 
+                : '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (DONE 버튼 클릭시 완료 모드로 전환)'
+              : designType === 1
+                ? '현재 Done Mode (EDIT 버튼 클릭시 편집 모드로 전환)'
+                : '현재 Done Mode: 스크롤 및 확대/축소 가능 (EDIT 버튼 클릭시 편집 모드로 전환)'
+            }
+          </div>
+        </div>
+        
         {/* 시안 1: 슬라이더 */}
         {designType === 1 && (
           <div className="slider-container">
@@ -285,25 +308,13 @@ const ZoomTable = ({ designType = 1 }) => {
           </div>
         )}
         
-        {/* 시안 2: 모드 토글 */}
-        {designType === 2 && (
-          <div className="mode-toggle-container">
-            <button 
-              className={`mode-toggle ${mode === 'edit' ? 'active' : ''}`} 
-              onClick={handleModeChange}
-            >
-              {mode === 'edit' ? 'DONE' : 'EDIT'}
-            </button>
-            <div className="mode-description">
-              {mode === 'edit' 
-                ? '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (DONE 버튼 클릭시 뷰 모드로 전환)' 
-                : '현재 View Mode: 스크롤 및 확대/축소 가능 (EDIT 버튼 클릭시 편집 모드로 전환)'}
-            </div>
-            <div className="design-info">
-              시안 2: edit/view 모드를 통해 스크롤 및 확대/축소 기능 제어
-            </div>
-          </div>
-        )}
+        {/* 시안별 기능 설명 */}
+        <div className="design-info">
+          {designType === 1 
+            ? '시안 1: edit/done 모드 기능은 동일하며, 슬라이더로 좌우 이동' 
+            : '시안 2: edit/done 모드를 통해 스크롤 및 확대/축소 기능 제어'
+          }
+        </div>
       </div>
       
       <div className="zoom-info">

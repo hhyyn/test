@@ -18,7 +18,8 @@ const ZoomTable = ({ designType = 1 }) => {
       if (headerRef.current && tableRef.current) {
         const headerHeight = headerRef.current.clientHeight;
         const containerHeight = tableRef.current.clientHeight;
-        const availableHeight = containerHeight - headerHeight;
+        // 더 많은 공간을 차지하도록 가용 높이의 120%로 설정
+        const availableHeight = (containerHeight - headerHeight) * 1.2;
         setCellHeight(`${availableHeight}px`);
       }
     };
@@ -180,6 +181,7 @@ const ZoomTable = ({ designType = 1 }) => {
     tableLayout: 'fixed',
     width: `${100 * (10 / visibleColumns)}%`, // 보이는 컬럼 수에 따라 너비 조정
     height: '100%',
+    borderSpacing: '0',
   }
   
   // 편집 모드일 때 배경색을 변경하여 시각적으로 구분
@@ -189,7 +191,8 @@ const ZoomTable = ({ designType = 1 }) => {
     width: '100%',
     height: '100%',
     overflowX: (designType === 1 || (designType === 2 && mode === 'edit')) ? 'hidden' : 'auto',
-    overflowY: 'hidden', // Y축 스크롤 제거
+    overflowY: 'auto', // Y축 스크롤 허용
+    maxHeight: 'calc(100vh - 200px)', // 화면 높이에 맞게 최대 높이 설정
   }
   
   const headerStyle = {
@@ -206,6 +209,11 @@ const ZoomTable = ({ designType = 1 }) => {
     height: cellHeight,
     verticalAlign: 'middle',
     fontSize: '18px',
+    padding: '20px 10px',
+    // 셀 내용에 추가적인 스타일
+    lineHeight: '1.6',
+    textAlign: 'center',
+    wordBreak: 'break-word',
   }
   
   return (

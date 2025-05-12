@@ -244,8 +244,7 @@ const ZoomTable = ({ designType = 1 }) => {
                     {mode === 'edit'
                       ? (
                         <div className="editable-cell">
-                          <span className="edit-placeholder">editable</span>
-                          <div>셀 {idx + 1}</div>
+                          편집 가능한 셀 {idx + 1}
                         </div>
                       ) 
                       : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -448,14 +448,6 @@ body {
   transform: scale(1.02);
 }
 
-.edit-placeholder {
-  color: #ff8c00;
-  font-style: italic;
-  font-size: 12px;
-  margin-bottom: 4px;
-  opacity: 0.8;
-}
-
 /* 편집 모드일 때 모든 셀에 애니메이션 효과 */
 .edit-mode .zoom-table th,
 .edit-mode .zoom-table td {

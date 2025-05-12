@@ -4,7 +4,7 @@ const ZoomTable = ({ designType = 1 }) => {
   const [visibleColumns, setVisibleColumns] = useState(3)
   const [scrollPosition, setScrollPosition] = useState(0)
   const [mode, setMode] = useState('view') // 'edit' 또는 'view'
-  const [cellHeight, setCellHeight] = useState('calc(100% - 60px)')
+  const [cellHeight, setCellHeight] = useState('300px')
   const tableContainerRef = useRef(null)
   const tableRef = useRef(null)
   const headerRef = useRef(null)
@@ -16,11 +16,8 @@ const ZoomTable = ({ designType = 1 }) => {
   useEffect(() => {
     const updateCellHeight = () => {
       if (headerRef.current && tableRef.current) {
-        const headerHeight = headerRef.current.clientHeight;
-        const containerHeight = tableRef.current.clientHeight;
-        // 컨테이너에 딱 맞게 설정
-        const availableHeight = containerHeight - headerHeight;
-        setCellHeight(`${availableHeight}px`);
+        // 충분히 큰 값으로 설정
+        setCellHeight('500px'); // 셀 높이를 500px로 설정
       }
     };
 
@@ -180,7 +177,7 @@ const ZoomTable = ({ designType = 1 }) => {
   const tableStyle = {
     tableLayout: 'fixed',
     width: `${100 * (10 / visibleColumns)}%`, // 보이는 컬럼 수에 따라 너비 조정
-    height: '100%',
+    height: 'auto', // 자동 높이 설정
     borderSpacing: '0',
   }
   
@@ -189,9 +186,9 @@ const ZoomTable = ({ designType = 1 }) => {
   
   const scrollContainerStyle = {
     width: '100%',
-    height: '100%',
+    height: 'auto', // 자동 높이 설정
     overflowX: (designType === 1 || (designType === 2 && mode === 'edit')) ? 'hidden' : 'auto',
-    overflowY: 'hidden', // Y축 스크롤 제거
+    overflowY: 'visible', // Y축 제한 제거
   }
   
   const headerStyle = {
@@ -210,8 +207,8 @@ const ZoomTable = ({ designType = 1 }) => {
     height: cellHeight,
     verticalAlign: 'middle',
     fontSize: '18px',
-    padding: '10px 8px',
-    lineHeight: '1.4',
+    padding: '20px 10px', // 패딩 증가
+    lineHeight: '1.5',
     textAlign: 'center',
     wordBreak: 'break-word',
     boxSizing: 'border-box',

@@ -6,6 +6,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
@@ -14,7 +16,8 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: auto;
+  min-height: 100vh;
 }
 
 .navigation {
@@ -45,17 +48,19 @@ body {
 
 .content {
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
+  min-height: 100%;
 }
 
 .zoom-table-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
 }
 
 .zoom-table-container {
@@ -63,20 +68,21 @@ body {
   flex: 1;
   border: 1px solid #ddd;
   border-radius: 4px;
-  overflow: hidden;
+  overflow: visible;
   touch-action: pinch-zoom;
   display: flex;
   flex-direction: column;
   min-height: 0;
   position: relative;
-  max-height: 100%;
+  max-height: none;
 }
 
 .zoom-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  height: 100%;
+  height: auto;
+  margin-bottom: 20px;
 }
 
 .zoom-table thead {
@@ -95,18 +101,19 @@ body {
   background-color: #f5f5f5;
   font-weight: bold;
   height: 50px;
-  padding: 8px;
+  padding: 15px;
   box-sizing: border-box;
   border: 1px solid #ddd;
 }
 
 .zoom-table td {
-  padding: 10px 8px;
+  padding: 20px 10px;
   border: 1px solid #ddd;
   text-align: center;
   vertical-align: middle;
   box-sizing: border-box;
-  line-height: 1.4;
+  line-height: 1.5;
+  height: 500px;
 }
 
 .zoom-table tr:nth-child(even) {
@@ -158,10 +165,11 @@ body {
 
 .page {
   padding: 10px;
-  height: 100%;
+  height: auto;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .page h1 {
@@ -195,13 +203,13 @@ body {
 /* 테이블 래퍼 */
 .table-scroll-container {
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scrollbar-width: thin; /* Firefox */
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .table-scroll-container::-webkit-scrollbar {
@@ -415,8 +423,8 @@ body {
   position: relative;
   background-color: rgba(255, 255, 255, 0.8);
   border: 1px dashed #ff8c00;
-  padding: 10px 8px;
-  min-height: 50px;
+  padding: 20px 10px;
+  min-height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: center;

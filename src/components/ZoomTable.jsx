@@ -16,8 +16,8 @@ const ZoomTable = ({ designType = 1 }) => {
   useEffect(() => {
     const updateCellHeight = () => {
       if (headerRef.current && tableRef.current) {
-        // 충분히 큰 값으로 설정
-        setCellHeight('500px'); // 셀 높이를 500px로 설정
+        // 셀 높이를 250px로 줄임
+        setCellHeight('250px'); 
       }
     };
 
@@ -292,11 +292,11 @@ const ZoomTable = ({ designType = 1 }) => {
               className={`mode-toggle ${mode === 'edit' ? 'active' : ''}`} 
               onClick={handleModeChange}
             >
-              {mode === 'edit' ? 'VIEW' : 'EDIT'}
+              {mode === 'edit' ? 'DONE' : 'EDIT'}
             </button>
             <div className="mode-description">
               {mode === 'edit' 
-                ? '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (VIEW 버튼 클릭시 뷰 모드로 전환)' 
+                ? '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (DONE 버튼 클릭시 뷰 모드로 전환)' 
                 : '현재 View Mode: 스크롤 및 확대/축소 가능 (EDIT 버튼 클릭시 편집 모드로 전환)'}
             </div>
             <div className="design-info">

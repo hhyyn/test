@@ -72,14 +72,14 @@ const ZoomTable = ({ designType = 1 }) => {
           touch1.clientY - touch2.clientY
         )
         
-        // 줌 인/아웃 감지
+        // 줌 인/아웃 감지 - 모바일에서는 반대로 동작하도록 수정
         const ratio = currentDistance / initialDistance
         
-        if (ratio > 1.1) { // 확대 (줌 아웃 - 더 많은 컬럼 표시)
-          setVisibleColumns(prev => Math.min(prev + 1, 10))
-          initialDistance = currentDistance
-        } else if (ratio < 0.9) { // 축소 (줌 인 - 더 적은 컬럼 표시)
+        if (ratio > 1.1) { // 손가락을 벌리는 동작 (핀치 아웃) - 확대 효과이므로 컬럼 감소
           setVisibleColumns(prev => Math.max(prev - 1, 1))
+          initialDistance = currentDistance
+        } else if (ratio < 0.9) { // 손가락을 모으는 동작 (핀치 인) - 축소 효과이므로 컬럼 증가
+          setVisibleColumns(prev => Math.min(prev + 1, 10))
           initialDistance = currentDistance
         }
       }
@@ -92,9 +92,9 @@ const ZoomTable = ({ designType = 1 }) => {
       if (e.ctrlKey) { // Ctrl 키를 누른 상태에서 휠 사용 시에만 적용
         e.preventDefault()
         
-        if (e.deltaY < 0) { // 휠 업 (줌 인 - 더 적은 컬럼 표시)
+        if (e.deltaY < 0) { // 휠 업 (줌 인) - 확대 효과이므로 컬럼 감소
           setVisibleColumns(prev => Math.max(prev - 1, 1))
-        } else { // 휠 다운 (줌 아웃 - 더 많은 컬럼 표시)
+        } else { // 휠 다운 (줌 아웃) - 축소 효과이므로 컬럼 증가
           setVisibleColumns(prev => Math.min(prev + 1, 10))
         }
       }
@@ -301,8 +301,8 @@ const ZoomTable = ({ designType = 1 }) => {
       <div className="zoom-info">
         현재 표시 중인 컬럼: {visibleColumns}개 
         <p className="zoom-instructions">
-          모바일: 두 손가락으로 핀치 줌/아웃<br />
-          데스크톱: Ctrl + 마우스 휠
+          모바일: 두 손가락으로 핀치 줌 (확대: 손가락 벌리기 = 컬럼 감소, 축소: 손가락 모으기 = 컬럼 증가)<br />
+          데스크톱: Ctrl + 마우스 휠 (확대: 휠 업 = 컬럼 감소, 축소: 휠 다운 = 컬럼 증가)
         </p>
       </div>
     </div>

@@ -1,0 +1,461 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.app-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.navigation {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.navigation button {
+  padding: 10px 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.navigation button:hover {
+  background-color: #e0e0e0;
+}
+
+.navigation button.active {
+  background-color: #4a90e2;
+  color: white;
+  border-color: #3a80d2;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.zoom-table-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.zoom-table-container {
+  width: 100%;
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  touch-action: pinch-zoom;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+.zoom-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  height: 100%;
+}
+
+.zoom-table thead {
+  height: auto;
+}
+
+.zoom-table tbody {
+  height: 100%;
+}
+
+.zoom-table tr {
+  height: 100%;
+}
+
+.zoom-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  height: auto;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+}
+
+.zoom-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.zoom-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.page {
+  padding: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page h1 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.page p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.zoom-info {
+  margin-top: 15px;
+  padding: 8px;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.zoom-instructions {
+  font-size: 12px;
+  color: #888;
+  margin-top: 5px;
+}
+
+/* 테이블 래퍼 */
+.table-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin; /* Firefox */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+  height: 8px; /* Chrome, Safari, Edge 가로 스크롤바 높이 */
+  width: 8px; /* 세로 스크롤바 너비 */
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* 컨트롤 영역 */
+.controls-container {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  flex-shrink: 0;
+}
+
+/* 슬라이더 스타일 개선 */
+.scroll-slider {
+  width: 90%;
+  margin: 0 auto;
+  height: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #ddd;
+  outline: none;
+  border-radius: 5px;
+}
+
+.scroll-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4a90e2;
+  cursor: pointer;
+}
+
+.scroll-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4a90e2;
+  cursor: pointer;
+  border: none;
+}
+
+/* 모드 토글 버튼 스타일 개선 */
+.mode-toggle {
+  padding: 10px 25px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mode-toggle.active {
+  background-color: #ff8c00;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+  animation: pulse 2s infinite;
+}
+
+.mode-description {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* 디자인 선택기 스타일 강화 */
+.design-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.design-selector button {
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.design-selector button.active {
+  background-color: #4a90e2;
+  color: white;
+  border-color: #3a80d2;
+}
+
+/* 슬라이더 레이블 스타일 개선 */
+.slider-label {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* 시안 정보 설명 */
+.design-info {
+  margin-top: 15px;
+  padding: 8px;
+  background-color: #f0f8ff;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+  border: 1px dashed #ccc;
+}
+
+/* 시안 2: 모드 토글 */
+.mode-toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 편집 모드 스타일 */
+.zoom-table-container.edit-mode {
+  position: relative;
+  background-color: #fffaf0; /* Edit 모드일 때 배경색 변경 */
+  border: 2px solid #ffa500; /* 오렌지색 테두리 */
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.2); /* 테두리 주변에 그림자 효과 */
+}
+
+/* 편집 모드 테이블 */
+.edit-mode .zoom-table th,
+.edit-mode .zoom-table td {
+  border-color: #ffbc40; /* 셀 테두리 색상 변경 */
+  transition: background-color 0.3s;
+}
+
+.edit-mode .zoom-table th {
+  background-color: #fff3e0; /* 헤더 배경색 변경 */
+}
+
+/* 편집 모드 오버레이 */
+.edit-mode-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.edit-mode-badge {
+  background-color: #ff8c00;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  animation: pulse 2s infinite;
+}
+
+.edit-icon {
+  font-size: 16px;
+}
+
+/* 펄스 애니메이션 */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(255, 140, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0);
+  }
+}
+
+/* 편집 모드일 때 버튼 강조 */
+.mode-toggle.active {
+  background-color: #ff8c00;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+  animation: pulse 2s infinite;
+}
+
+/* 편집 가능한 셀 스타일 */
+.editable-cell {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px dashed #ff8c00;
+  padding: 8px;
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  transition: all 0.3s;
+  height: 100%;
+}
+
+.editable-cell:hover {
+  background-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.3);
+  cursor: text;
+  transform: scale(1.02);
+}
+
+.edit-placeholder {
+  color: #ff8c00;
+  font-style: italic;
+  font-size: 12px;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+/* 편집 모드일 때 모든 셀에 애니메이션 효과 */
+.edit-mode .zoom-table th,
+.edit-mode .zoom-table td {
+  transition: background-color 0.3s;
+}
+
+.edit-mode .zoom-table td:hover {
+  background-color: #fff8ec;
+}
+
+/* 편집 모드일 때 툴팁 */
+.edit-mode-tooltip {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 100;
+  pointer-events: none;
+}

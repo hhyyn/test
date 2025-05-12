@@ -17,13 +17,13 @@ function App() {
           className={currentPage === 1 ? 'active' : ''} 
           onClick={() => handlePageChange(1)}
         >
-          페이지 1
+          시안 1
         </button>
         <button 
           className={currentPage === 2 ? 'active' : ''} 
           onClick={() => handlePageChange(2)}
         >
-          페이지 2
+          시안 2
         </button>
       </div>
       <div className="content">

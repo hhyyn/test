@@ -292,10 +292,12 @@ const ZoomTable = ({ designType = 1 }) => {
               className={`mode-toggle ${mode === 'edit' ? 'active' : ''}`} 
               onClick={handleModeChange}
             >
-              {mode === 'edit' ? 'EDIT' : 'VIEW'}
+              {mode === 'edit' ? 'VIEW' : 'EDIT'}
             </button>
             <div className="mode-description">
-              {mode === 'edit' ? 'Edit Mode: 스크롤 및 확대/축소 불가능' : 'View Mode: 스크롤 및 확대/축소 가능'}
+              {mode === 'edit' 
+                ? '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (VIEW 버튼 클릭시 뷰 모드로 전환)' 
+                : '현재 View Mode: 스크롤 및 확대/축소 가능 (EDIT 버튼 클릭시 편집 모드로 전환)'}
             </div>
             <div className="design-info">
               시안 2: edit/view 모드를 통해 스크롤 및 확대/축소 기능 제어

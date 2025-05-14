@@ -7,6 +7,7 @@ const ZoomTable = ({ designType = 1 }) => {
   const [cellHeight, setCellHeight] = useState('300px')
   const [isDragging, setIsDragging] = useState(false)
   const [startTouchX, setStartTouchX] = useState(0)
+  const [touchCount, setTouchCount] = useState(0)
   const tableContainerRef = useRef(null)
   const tableRef = useRef(null)
   const headerRef = useRef(null)
@@ -47,8 +48,37 @@ const ZoomTable = ({ designType = 1 }) => {
     let initialDistance = 0
     
     const handleTouchStart = (e) => {
-      if (mode === 'edit' && designType === 2) return // 편집 모드이면서 시안 2인 경우 확대/축소 불가
+      // 터치 개수 저장
+      setTouchCount(e.touches.length)
       
+      if (mode === 'edit' && designType === 2) return // 편집 모드이면서 시안 2인 경우 확대/축소와 스크롤 불가
+      
+      // 시안 3에서 두 손가락은 확대/축소용, 세 손가락은 스크롤용으로 분리
+      if (designType === 3) {
+        if (e.touches.length === 2) {
+          // 두 손가락 터치는 확대/축소용 - 드래그 시작X
+          const touch1 = e.touches[0]
+          const touch2 = e.touches[1]
+          initialDistance = Math.hypot(
+            touch1.clientX - touch2.clientX,
+            touch1.clientY - touch2.clientY
+          )
+          setIsDragging(false)
+        } else if (e.touches.length === 3) {
+          // 세 손가락 터치는 스크롤용 - 드래그 시작O
+          e.preventDefault() // 브라우저 기본 동작 방지
+          const touch1 = e.touches[0]
+          const touch2 = e.touches[1]
+          const touch3 = e.touches[2]
+          // 세 손가락의 중심점 계산
+          const centerX = (touch1.clientX + touch2.clientX + touch3.clientX) / 3
+          setIsDragging(true)
+          setStartTouchX(centerX)
+        }
+        return
+      }
+      
+      // 시안 1, 2의 경우 기존 로직 유지
       if (e.touches.length === 2) {
         const touch1 = e.touches[0]
         const touch2 = e.touches[1]
@@ -56,31 +86,44 @@ const ZoomTable = ({ designType = 1 }) => {
           touch1.clientX - touch2.clientX,
           touch1.clientY - touch2.clientY
         )
-
-        // 시안 3에서는 두 손가락 드래그로 스크롤 시작
-        if (designType === 3) {
-          setIsDragging(true)
-          setStartTouchX((touch1.clientX + touch2.clientX) / 2) // 두 손가락의 중간 위치
-        }
       }
     }
     
     const handleTouchMove = (e) => {
-      if (mode === 'edit' && designType === 2) return // 편집 모드이면서 시안 2인 경우 확대/축소 불가
+      if (mode === 'edit' && designType === 2) return // 편집 모드이면서 시안 2인 경우 확대/축소와 스크롤 불가
       
-      if (e.touches.length === 2) {
-        e.preventDefault()
-        
-        const touch1 = e.touches[0]
-        const touch2 = e.touches[1]
-        const currentDistance = Math.hypot(
-          touch1.clientX - touch2.clientX,
-          touch1.clientY - touch2.clientY
-        )
-        
-        // 시안 3에서는 두 손가락 드래그로 스크롤
-        if (designType === 3 && isDragging) {
-          const currentX = (touch1.clientX + touch2.clientX) / 2
+      // 시안 3에서 손가락 개수에 따라 다른 동작 수행
+      if (designType === 3) {
+        if (e.touches.length === 2) {
+          // 두 손가락 이동은 핀치 줌(확대/축소)용
+          e.preventDefault()
+          
+          const touch1 = e.touches[0]
+          const touch2 = e.touches[1]
+          const currentDistance = Math.hypot(
+            touch1.clientX - touch2.clientX,
+            touch1.clientY - touch2.clientY
+          )
+          
+          // 확대/축소 계산
+          const ratio = currentDistance / initialDistance
+          
+          if (ratio > 1.1) { // 손가락을 벌리는 동작 (핀치 아웃) - 확대 효과이므로 컬럼 감소
+            setVisibleColumns(prev => Math.max(prev - 1, 1))
+            initialDistance = currentDistance
+          } else if (ratio < 0.9) { // 손가락을 모으는 동작 (핀치 인) - 축소 효과이므로 컬럼 증가
+            setVisibleColumns(prev => Math.min(prev + 1, 10))
+            initialDistance = currentDistance
+          }
+        } else if (e.touches.length === 3 && isDragging) {
+          // 세 손가락 이동은 스크롤용
+          e.preventDefault()
+          
+          const touch1 = e.touches[0]
+          const touch2 = e.touches[1]
+          const touch3 = e.touches[2]
+          // 세 손가락의 중심점 계산
+          const currentX = (touch1.clientX + touch2.clientX + touch3.clientX) / 3
           const deltaX = startTouchX - currentX
           
           if (tableRef.current) {
@@ -94,8 +137,20 @@ const ZoomTable = ({ designType = 1 }) => {
               setScrollPosition(scrollPercentage)
             }
           }
-          return // 스크롤 중에는 확대/축소 하지 않음
         }
+        return
+      }
+      
+      // 시안 1, 2의 경우 기존 로직 유지
+      if (e.touches.length === 2) {
+        e.preventDefault()
+        
+        const touch1 = e.touches[0]
+        const touch2 = e.touches[1]
+        const currentDistance = Math.hypot(
+          touch1.clientX - touch2.clientX,
+          touch1.clientY - touch2.clientY
+        )
         
         // 줌 인/아웃 감지 - 모바일에서는 반대로 동작하도록 수정
         const ratio = currentDistance / initialDistance
@@ -110,10 +165,10 @@ const ZoomTable = ({ designType = 1 }) => {
       }
     }
     
-    const handleTouchEnd = () => {
-      if (designType === 3) {
-        setIsDragging(false)
-      }
+    const handleTouchEnd = (e) => {
+      // 터치 끝날 때 드래그 상태 초기화
+      setIsDragging(false)
+      setTouchCount(e.touches.length) // 남은 터치 개수 업데이트
     }
     
     // 마우스 휠 이벤트 처리
@@ -142,7 +197,7 @@ const ZoomTable = ({ designType = 1 }) => {
       container.removeEventListener('touchend', handleTouchEnd)
       container.removeEventListener('wheel', handleWheel)
     }
-  }, [mode, designType, isDragging, startTouchX]) // 의존성 배열에 isDragging과 startTouchX 추가
+  }, [mode, designType, isDragging, startTouchX, touchCount]) // 의존성 배열에 touchCount 추가
   
   // 테이블 너비 변경시 슬라이더 위치를 업데이트
   useEffect(() => {
@@ -195,7 +250,7 @@ const ZoomTable = ({ designType = 1 }) => {
   // 테이블 스크롤 이벤트 핸들러
   const handleTableScroll = () => {
     if (designType === 1 || designType === 3) {
-      // 시안 1과 시안 3에서는 스크롤이 슬라이더에만 연동됨 (시안 3은 두 손가락 드래그로 스크롤)
+      // 시안 1과 시안 3에서는 스크롤이 슬라이더 또는 세 손가락 드래그에만 연동됨
       return
     }
     
@@ -326,9 +381,18 @@ const ZoomTable = ({ designType = 1 }) => {
         {/* 시안 3: 두 손가락 드래그 가이드 */}
         {designType === 3 && (
           <div className="slider-container">
-            <div className="slider-label">두 손가락으로 드래그하여 좌우 스크롤</div>
+            <div className="gesture-instructions">
+              <div className="gesture-item">
+                <span className="gesture-icon">👆👆</span>
+                <span className="gesture-text">두 손가락 핀치: 확대/축소</span>
+              </div>
+              <div className="gesture-item">
+                <span className="gesture-icon">👆👆👆</span>
+                <span className="gesture-text">세 손가락 드래그: 좌우 스크롤</span>
+              </div>
+            </div>
             <div className="design-info">
-              시안 3: 기본 x축 스크롤 사용 불가, 두 손가락으로 드래그하여 좌우 이동
+              시안 3: 두 손가락 핀치로 확대/축소, 세 손가락 드래그로 좌우 이동
             </div>
           </div>
         )}
@@ -339,7 +403,7 @@ const ZoomTable = ({ designType = 1 }) => {
             ? '시안 1: edit/done 모드 기능은 동일하며, 슬라이더로 좌우 이동' 
             : designType === 2
               ? '시안 2: edit/done 모드를 통해 스크롤 및 확대/축소 기능 제어'
-              : '시안 3: edit/done 모드 기능은 동일하며, 두 손가락 드래그로 좌우 이동'
+              : '시안 3: edit/done 모드 기능은 동일하며, 제스처로 테이블 제어'
           }
         </div>
       </div>
@@ -349,7 +413,7 @@ const ZoomTable = ({ designType = 1 }) => {
         <p className="zoom-instructions">
           모바일: 두 손가락으로 핀치 줌 (확대: 손가락 벌리기 = 컬럼 감소, 축소: 손가락 모으기 = 컬럼 증가)<br />
           데스크톱: Ctrl + 마우스 휠 (확대: 휠 업 = 컬럼 감소, 축소: 휠 다운 = 컬럼 증가)
-          {designType === 3 && <><br />시안 3: 두 손가락으로 드래그하여 좌우 스크롤</>}
+          {designType === 3 && <><br />시안 3: 세 손가락으로 드래그하여 좌우 스크롤</>}
         </p>
       </div>
     </div>

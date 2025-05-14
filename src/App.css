@@ -524,3 +524,37 @@ body {
 .finger-drag-icon {
   animation: drag-animation 2s infinite;
 }
+
+/* 시안 3의 제스처 안내 스타일 */
+.gesture-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+  padding: 15px;
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gesture-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gesture-icon {
+  font-size: 16px;
+  background-color: #eef6ff;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid #cce0ff;
+  min-width: 60px;
+  text-align: center;
+}
+
+.gesture-text {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}

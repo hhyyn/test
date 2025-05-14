@@ -5,6 +5,8 @@ const ZoomTable = ({ designType = 1 }) => {
   const [scrollPosition, setScrollPosition] = useState(0)
   const [mode, setMode] = useState('view') // 'edit' 또는 'view'
   const [cellHeight, setCellHeight] = useState('300px')
+  const [isDragging, setIsDragging] = useState(false)
+  const [startTouchX, setStartTouchX] = useState(0)
   const tableContainerRef = useRef(null)
   const tableRef = useRef(null)
   const headerRef = useRef(null)
@@ -54,6 +56,12 @@ const ZoomTable = ({ designType = 1 }) => {
           touch1.clientX - touch2.clientX,
           touch1.clientY - touch2.clientY
         )
+
+        // 시안 3에서는 두 손가락 드래그로 스크롤 시작
+        if (designType === 3) {
+          setIsDragging(true)
+          setStartTouchX((touch1.clientX + touch2.clientX) / 2) // 두 손가락의 중간 위치
+        }
       }
     }
     
@@ -70,6 +78,25 @@ const ZoomTable = ({ designType = 1 }) => {
           touch1.clientY - touch2.clientY
         )
         
+        // 시안 3에서는 두 손가락 드래그로 스크롤
+        if (designType === 3 && isDragging) {
+          const currentX = (touch1.clientX + touch2.clientX) / 2
+          const deltaX = startTouchX - currentX
+          
+          if (tableRef.current) {
+            tableRef.current.scrollLeft += deltaX
+            setStartTouchX(currentX)
+            
+            // 스크롤 위치에 따라 슬라이더 위치 업데이트 (시각적 피드백)
+            const maxScroll = tableRef.current.scrollWidth - tableRef.current.clientWidth
+            if (maxScroll > 0) {
+              const scrollPercentage = (tableRef.current.scrollLeft / maxScroll) * 100
+              setScrollPosition(scrollPercentage)
+            }
+          }
+          return // 스크롤 중에는 확대/축소 하지 않음
+        }
+        
         // 줌 인/아웃 감지 - 모바일에서는 반대로 동작하도록 수정
         const ratio = currentDistance / initialDistance
         
@@ -80,6 +107,12 @@ const ZoomTable = ({ designType = 1 }) => {
           setVisibleColumns(prev => Math.min(prev + 1, 10))
           initialDistance = currentDistance
         }
+      }
+    }
+    
+    const handleTouchEnd = () => {
+      if (designType === 3) {
+        setIsDragging(false)
       }
     }
     
@@ -100,14 +133,16 @@ const ZoomTable = ({ designType = 1 }) => {
     
     container.addEventListener('touchstart', handleTouchStart)
     container.addEventListener('touchmove', handleTouchMove, { passive: false })
+    container.addEventListener('touchend', handleTouchEnd)
     container.addEventListener('wheel', handleWheel, { passive: false })
     
     return () => {
       container.removeEventListener('touchstart', handleTouchStart)
       container.removeEventListener('touchmove', handleTouchMove)
+      container.removeEventListener('touchend', handleTouchEnd)
       container.removeEventListener('wheel', handleWheel)
     }
-  }, [mode, designType]) // 모드 변경시 이벤트 리스너 재설정
+  }, [mode, designType, isDragging, startTouchX]) // 의존성 배열에 isDragging과 startTouchX 추가
   
   // 테이블 너비 변경시 슬라이더 위치를 업데이트
   useEffect(() => {
@@ -159,8 +194,8 @@ const ZoomTable = ({ designType = 1 }) => {
   
   // 테이블 스크롤 이벤트 핸들러
   const handleTableScroll = () => {
-    if (designType === 1) {
-      // 시안 1에서는 스크롤이 슬라이더에만 연동됨
+    if (designType === 1 || designType === 3) {
+      // 시안 1과 시안 3에서는 스크롤이 슬라이더에만 연동됨 (시안 3은 두 손가락 드래그로 스크롤)
       return
     }
     
@@ -184,93 +219,70 @@ const ZoomTable = ({ designType = 1 }) => {
   // 편집 모드일 때 배경색을 변경하여 시각적으로 구분
   const containerClassName = `zoom-table-container ${mode === 'edit' ? 'edit-mode' : ''}`;
   
-  const scrollContainerStyle = {
-    width: '100%',
-    height: 'auto', // 자동 높이 설정
-    overflowX: (designType === 1 || (designType === 2 && mode === 'edit')) ? 'hidden' : 'auto',
-    overflowY: 'visible', // Y축 제한 제거
-  }
-  
-  const headerStyle = {
-    width: `${100 / 10}%`,
-    minWidth: '150px',
-    padding: '8px',
-    backgroundColor: mode === 'edit' ? '#fff3e0' : '#f5f5f5',
-    fontWeight: 'bold',
-    boxSizing: 'border-box',
-    height: '50px', // 헤더 높이 고정
-  }
-  
-  const cellStyle = {
-    width: `${100 / 10}%`,
-    minWidth: '150px',
-    height: cellHeight, // 고정된 높이 사용
-    verticalAlign: 'middle',
-    fontSize: '18px',
-    padding: '20px 10px', // 패딩 증가
-    lineHeight: '1.5',
-    textAlign: 'center',
-    wordBreak: 'break-word',
-    boxSizing: 'border-box',
-    backgroundColor: mode === 'view' ? '#e6ffe6' : undefined, // done 모드일 때만 연한 초록색 배경
+  // 시안 3에서는 테이블에 스크롤을 기본적으로 막음
+  if (designType === 3 && tableRef.current) {
+    tableRef.current.style.overflowX = 'hidden';
   }
   
   return (
-    <div className="zoom-table-wrapper">
-      <div className={containerClassName} ref={tableContainerRef}>
+    <div className={containerClassName}>
+      {/* 편집 모드일 경우 오버레이 배지 표시 */}
+      {mode === 'edit' && (
+        <div className="edit-badge">
+          <span>편집 모드</span>
+        </div>
+      )}
+      
+      <div 
+        ref={tableContainerRef} 
+        className="table-container"
+        style={{ position: 'relative' }}
+      >
         <div 
-          className="table-scroll-container" 
           ref={tableRef}
+          className="table-wrapper"
+          style={{ 
+            overflowX: designType === 2 && mode === 'edit' ? 'hidden' : (designType === 3 ? 'hidden' : 'auto'), 
+            overflowY: 'hidden' 
+          }}
           onScroll={handleTableScroll}
-          style={scrollContainerStyle}
         >
-          <table className="zoom-table" style={tableStyle}>
+          <table style={tableStyle}>
             <thead ref={headerRef}>
               <tr>
-                {columns.map((col, idx) => (
-                  <th key={idx} style={headerStyle}>
-                    {mode === 'edit'
-                      ? <div className="editable-cell">{col}</div> 
-                      : col
-                    }
+                {columns.slice(0, 10).map((column, index) => (
+                  <th key={index} style={{ height: '40px' }}>
+                    {column}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               <tr>
-                {columns.map((_, idx) => (
-                  <td key={idx} style={cellStyle}>
-                    {mode === 'edit'
-                      ? (
-                        <div className="editable-cell">
-                          편집 가능한 셀 {idx + 1}
-                        </div>
-                      ) 
-                      : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          결과 셀 {idx + 1}
-                        </div>
-                    }
+                {columns.slice(0, 10).map((_, index) => (
+                  <td 
+                    key={index} 
+                    style={{ 
+                      height: cellHeight, 
+                      padding: '10px', 
+                      border: '1px solid #ccc',
+                      textAlign: 'center',
+                      verticalAlign: 'middle',
+                      background: mode === 'edit' ? '#fff6f0' : 'white' // 편집 모드에서 배경색 변경
+                    }}
+                  >
+                    데이터 {index + 1}
                   </td>
                 ))}
               </tr>
             </tbody>
           </table>
         </div>
-        
-        {/* 편집 모드 오버레이 */}
-        {mode === 'edit' && (
-          <div className="edit-mode-overlay">
-            <div className="edit-mode-badge">
-              <span className="edit-icon">✏️</span> EDIT
-            </div>
-          </div>
-        )}
       </div>
       
       <div className="controls-container">
-        {/* 시안 1 & 2: 모드 토글 */}
-        <div className={`mode-toggle-container ${designType === 1 ? 'design1' : 'design2'}`}>
+        {/* 시안 1, 2, 3: 모드 토글 */}
+        <div className={`mode-toggle-container ${designType === 1 ? 'design1' : designType === 2 ? 'design2' : 'design3'}`}>
           <button 
             className={`mode-toggle ${mode === 'edit' ? 'active' : ''}`} 
             onClick={handleModeChange}
@@ -281,10 +293,14 @@ const ZoomTable = ({ designType = 1 }) => {
             {mode === 'edit' 
               ? designType === 1
                 ? '현재 Edit Mode (DONE 버튼 클릭시 완료 모드로 전환)' 
-                : '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (DONE 버튼 클릭시 완료 모드로 전환)'
+                : designType === 2
+                  ? '현재 Edit Mode: 스크롤 및 확대/축소 불가능 (DONE 버튼 클릭시 완료 모드로 전환)'
+                  : '현재 Edit Mode (DONE 버튼 클릭시 완료 모드로 전환)'
               : designType === 1
                 ? '현재 Done Mode (EDIT 버튼 클릭시 편집 모드로 전환)'
-                : '현재 Done Mode: 스크롤 및 확대/축소 가능 (EDIT 버튼 클릭시 편집 모드로 전환)'
+                : designType === 2
+                  ? '현재 Done Mode: 스크롤 및 확대/축소 가능 (EDIT 버튼 클릭시 편집 모드로 전환)'
+                  : '현재 Done Mode (EDIT 버튼 클릭시 편집 모드로 전환)'
             }
           </div>
         </div>
@@ -307,11 +323,23 @@ const ZoomTable = ({ designType = 1 }) => {
           </div>
         )}
         
+        {/* 시안 3: 두 손가락 드래그 가이드 */}
+        {designType === 3 && (
+          <div className="slider-container">
+            <div className="slider-label">두 손가락으로 드래그하여 좌우 스크롤</div>
+            <div className="design-info">
+              시안 3: 기본 x축 스크롤 사용 불가, 두 손가락으로 드래그하여 좌우 이동
+            </div>
+          </div>
+        )}
+        
         {/* 시안별 기능 설명 */}
         <div className="design-info">
           {designType === 1 
             ? '시안 1: edit/done 모드 기능은 동일하며, 슬라이더로 좌우 이동' 
-            : '시안 2: edit/done 모드를 통해 스크롤 및 확대/축소 기능 제어'
+            : designType === 2
+              ? '시안 2: edit/done 모드를 통해 스크롤 및 확대/축소 기능 제어'
+              : '시안 3: edit/done 모드 기능은 동일하며, 두 손가락 드래그로 좌우 이동'
           }
         </div>
       </div>
@@ -321,6 +349,7 @@ const ZoomTable = ({ designType = 1 }) => {
         <p className="zoom-instructions">
           모바일: 두 손가락으로 핀치 줌 (확대: 손가락 벌리기 = 컬럼 감소, 축소: 손가락 모으기 = 컬럼 증가)<br />
           데스크톱: Ctrl + 마우스 휠 (확대: 휠 업 = 컬럼 감소, 축소: 휠 다운 = 컬럼 증가)
+          {designType === 3 && <><br />시안 3: 두 손가락으로 드래그하여 좌우 스크롤</>}
         </p>
       </div>
     </div>

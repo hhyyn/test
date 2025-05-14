@@ -469,3 +469,58 @@ body {
   z-index: 100;
   pointer-events: none;
 }
+
+/* 시안 3 관련 스타일 */
+.mode-toggle-container.design3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.design3 .mode-toggle {
+  background-color: #4a90e2;
+  border: none;
+  color: white;
+}
+
+.design3 .mode-toggle.active {
+  background-color: #ff8c00;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+}
+
+/* 두 손가락 드래그 가이드 스타일 */
+.drag-guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.drag-guide-icon {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+/* 두 손가락 드래그 안내 아이콘 (손 모양) */
+.finger-drag-icon {
+  display: inline-block;
+  position: relative;
+  width: 30px;
+  height: 25px;
+  margin: 0 10px;
+  opacity: 0.8;
+}
+
+/* 확대/축소 가이드 애니메이션 */
+@keyframes drag-animation {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
+
+.finger-drag-icon {
+  animation: drag-animation 2s infinite;
+}
